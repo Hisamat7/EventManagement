@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "866671808271",
+    "project_id": "fir-learning-23cdd",
+    "storage_bucket": "fir-learning-23cdd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:866671808271:android:9dae1c3532dbf23510787a",
+        "android_client_info": {
+          "package_name": "com.example.firebaselearning"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAN6dgTZMbW3qcJnKDVmlG6jIbFwWiTzjs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
