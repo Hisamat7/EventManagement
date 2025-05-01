@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebaselearning/controllers/ProductController.dart';
+import 'package:firebaselearning/FirebaseStudy/controllers/ProductController.dart';
 import 'package:flutter/material.dart';
 
 class HomeController {

@@ -1,4 +1,4 @@
-import 'package:firebaselearning/views/ProductScreen.dart';
+import 'package:firebaselearning/FirebaseStudy/views/ProductScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

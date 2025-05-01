@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebaselearning/views/HomePage.dart'; // Ensure correct import
+import 'package:firebaselearning/FirebaseStudy/views/HomePage.dart'; // Ensure correct import
 
 class SignUpController {
   final FirebaseAuth auth = FirebaseAuth.instance;

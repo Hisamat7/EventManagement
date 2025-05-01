@@ -1,4 +1,4 @@
-import 'package:firebaselearning/controllers/SignUpController.dart';
+import 'package:firebaselearning/FirebaseStudy/controllers/SignUpController.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

@@ -1,5 +1,5 @@
-import 'package:firebaselearning/controllers/LoginController.dart';
-import 'package:firebaselearning/views/SignUp.dart';
+import 'package:firebaselearning/FirebaseStudy/controllers/LoginController.dart';
+import 'package:firebaselearning/FirebaseStudy/views/SignUp.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

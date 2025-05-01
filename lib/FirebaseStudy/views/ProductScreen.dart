@@ -1,5 +1,5 @@
-import 'package:firebaselearning/controllers/HomeController.dart';
-import 'package:firebaselearning/controllers/ProductController.dart';
+import 'package:firebaselearning/FirebaseStudy/controllers/HomeController.dart';
+import 'package:firebaselearning/FirebaseStudy/controllers/ProductController.dart';
 import 'package:flutter/material.dart';
 
 class ProductScreen extends StatefulWidget {
