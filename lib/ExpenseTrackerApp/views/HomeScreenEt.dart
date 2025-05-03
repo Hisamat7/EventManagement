@@ -18,15 +18,20 @@ class _HomeScreenEtState extends State<HomeScreenEt> {
   final TextEditingController amountController = TextEditingController();
   final dbstore = CRED();
   late DateTime currentDate;
+  final NumberFormat currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+  final _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     currentDate = DateTime.now();
   }
 
   @override
   void dispose() {
+    _isMounted = false;
     itemController.dispose();
     amountController.dispose();
     super.dispose();
@@ -34,90 +39,173 @@ class _HomeScreenEtState extends State<HomeScreenEt> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(15),
-        child: FloatingActionButton(
-          elevation: 7,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          backgroundColor: Colors.pinkAccent,
-          onPressed: () {
-            setState(() {
-              currentDate = DateTime.now();
-            });
-            _showAddExpenseDialog(context);
-          },
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
-      ),
-      appBar: AppBar(
-        elevation: 5,
-        backgroundColor: Colors.pink[400],
-        title: const Text(
-          "Expense Tracker", 
-          style: TextStyle(color: Colors.white),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await authController.logout(context: context);
+    return ScaffoldMessenger(
+      key: _scaffoldKey,
+      child: Scaffold(
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.all(15),
+          child: FloatingActionButton(
+            elevation: 7,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            backgroundColor: Colors.pinkAccent,
+            onPressed: () {
+              setState(() {
+                currentDate = DateTime.now();
+              });
+              _showAddExpenseDialog(context);
             },
-            icon: const Icon(Icons.logout, color: Colors.white),
+            child: const Icon(Icons.add, color: Colors.white),
           ),
-        ],
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: dbstore.getExpensesStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text("Error: ${snapshot.error}"));
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("No expenses found"));
-          }
+        ),
+        appBar: AppBar(
+          elevation: 5,
+          backgroundColor: Colors.pink[400],
+          title: const Text(
+            "Expense Tracker", 
+            style: TextStyle(color: Colors.white),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () async {
+                await authController.logout(context: context);
+              },
+              icon: const Icon(Icons.logout, color: Colors.white),
+            ),
+          ],
+        ),
+        body: StreamBuilder<QuerySnapshot>(
+          stream: dbstore.getExpensesStream(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            }
+            
+            double totalExpenses = 0;
+            if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+              for (var doc in snapshot.data!.docs) {
+                final amount = _parseAmount(doc['amount']);
+                totalExpenses += amount;
+              }
+            }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              final doc = snapshot.data!.docs[index];
-              final data = doc.data() as Map<String, dynamic>;
-              return Padding(
-                padding: const EdgeInsets.all(12),
-                child: Card(
-                  child: ListTile(
-                  title: Text(data['description'] ?? 'No title', style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.pink),),
-                  subtitle:Text(
-                    style: const TextStyle(color: Colors.pink),
-                    data['date'] != null 
-                    ? DateFormat('dd/MM/yyyy').format((data['date'] as Timestamp).toDate())
-                    : 'No date'),
-                  trailing:
-                   Text('\$${data['amount'] ?? '0'}', style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.pink),),
-                   
+            return Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(16.r),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12.r),
+                    ),
+                    color: Colors.pink[50],
+                    child: Padding(
+                      padding: EdgeInsets.all(16.r),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Total Expenses:',
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.pink[800],
+                            ),
+                          ),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: Text(
+                              currencyFormat.format(totalExpenses),
+                              key: ValueKey(totalExpenses),
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.pink[800],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                color: Colors.white,
-                  elevation: 5,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.r),
-                
-                  )),
-              );
-            },
-          );
-        },
+                Expanded(
+                  child: snapshot.hasData && snapshot.data!.docs.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          final doc = snapshot.data!.docs[index];
+                          final data = doc.data() as Map<String, dynamic>;
+                          final amount = _parseAmount(data['amount']);
+                          
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 4.h),
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  data['description'] ?? 'No title',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.pink,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  data['date'] != null
+                                      ? DateFormat('dd/MM/yyyy')
+                                          .format((data['date'] as Timestamp).toDate())
+                                      : 'No date',
+                                  style: TextStyle(color: Colors.pink),
+                                ),
+                                trailing: Text(
+                                  currencyFormat.format(amount),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.pink,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : Center(
+                        child: Text(
+                          'No expenses yet',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            color: Colors.pink,
+                          ),
+                        ),
+                      ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
+  double _parseAmount(dynamic amount) {
+    if (amount == null) return 0;
+    if (amount is num) return amount.toDouble();
+    if (amount is String) return double.tryParse(amount) ?? 0;
+    return 0;
+  }
+
   void _showAddExpenseDialog(BuildContext context) {
     showDialog(
-      barrierDismissible: false,
       context: context,
+      barrierDismissible: false,
       builder: (context) => AlertDialog(
         elevation: 10,
         backgroundColor: Colors.white,
@@ -208,36 +296,53 @@ class _HomeScreenEtState extends State<HomeScreenEt> {
     );
   }
 
-  void _handleAddExpense(BuildContext context) {
+  Future<void> _handleAddExpense(BuildContext context) async {
+    if (!_isMounted) return;
+
     if (itemController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a title")),
-      );
+      _showSnackBar("Please enter a title");
       return;
     }
 
     final amount = double.tryParse(amountController.text);
     if (amount == null || amount <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter a valid amount")),
-      );
+      _showSnackBar("Please enter a valid amount");
       return;
     }
 
-    dbstore.uploadExpense(
-      amount: amount.toString(),
-      description: itemController.text,
-      userid: authController.currentUser?.uid ?? '',
-      date: currentDate,
+    Navigator.of(context).pop(); // Close the dialog
+
+    showDialog(
       context: context,
-      itemController: itemController,
-      amountController: amountController,
-    ).then((_) {
-      Navigator.pop(context);
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $error")),
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      await dbstore.uploadExpense(
+        amount: amount, 
+        description: itemController.text,
+        userId: authController.currentUser?.uid ?? '',
+        date: currentDate,
       );
-    });
+
+      if (!_isMounted) return;
+      itemController.clear();
+      amountController.clear();
+    } catch (e) {
+      if (!_isMounted) return;
+      _showSnackBar("Error: ${e.toString()}");
+    } finally {
+      if (_isMounted) {
+        Navigator.of(context).pop(); // Close loading indicator
+      }
+    }
+  }
+
+  void _showSnackBar(String message) {
+    if (!_isMounted) return;
+    _scaffoldKey.currentState?.showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 }
