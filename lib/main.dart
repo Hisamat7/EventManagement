@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebaselearning/ExpenseTrackerApp/views/ExpenseTrackerSplashScreen.dart';
 import 'package:firebaselearning/NotePadApp/Src/Views/LoginScreenPage.dart';
 import 'package:firebaselearning/NotePadApp/Src/Views/SplashScreenPage.dart';
+import 'package:firebaselearning/TodoApp/src/views/SplashTodo.dart';
 import 'package:firebaselearning/firebase_options.dart';
 import 'package:firebaselearning/FirebaseStudy/views/LoginScreen.dart';
 import 'package:firebaselearning/FirebaseStudy/views/SplashScreen.dart';
@@ -23,7 +24,7 @@ void main() async {
             scaffoldBackgroundColor: Colors.white,
             fontFamily: 'Poppins',
           ),
-          home: ExpenseTrackerSplashScreen());
+          home: SplashTodo());
     },
   ));
 }
