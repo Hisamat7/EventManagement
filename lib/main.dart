@@ -1,19 +1,20 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebaselearning/ExpenseTrackerApp/views/ExpenseTrackerSplashScreen.dart';
-import 'package:firebaselearning/NotePadApp/Src/Views/LoginScreenPage.dart';
-import 'package:firebaselearning/NotePadApp/Src/Views/SplashScreenPage.dart';
-import 'package:firebaselearning/TodoApp/src/views/SplashTodo.dart';
+import 'package:firebaselearning/TodoSample/src/views/SplashScreenTs.dart';
 import 'package:firebaselearning/firebase_options.dart';
-import 'package:firebaselearning/FirebaseStudy/views/LoginScreen.dart';
-import 'package:firebaselearning/FirebaseStudy/views/SplashScreen.dart';
+import 'package:firebaselearning/hive_db/model/HiveModel.dart';
+import 'package:firebaselearning/hive_db/views/TodoHiveHome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/adapters.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await Hive.initFlutter();
+  Hive.registerAdapter(HiveModelAdapter());
+  
   runApp(ScreenUtilInit(
     designSize: Size(384, 805),
     minTextAdapt: true,
@@ -24,7 +25,7 @@ void main() async {
             scaffoldBackgroundColor: Colors.white,
             fontFamily: 'Poppins',
           ),
-          home: SplashTodo());
+          home: TodoHiveHome());
     },
   ));
 }
