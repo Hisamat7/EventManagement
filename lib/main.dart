@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebaselearning/TodoSample/src/views/SplashScreenTs.dart';
 import 'package:firebaselearning/firebase_options.dart';
-import 'package:firebaselearning/hive_db/model/HiveModel.dart';
+import 'package:firebaselearning/hive_db/model/TodoModelHv.dart';
+import 'package:firebaselearning/hive_db/views/HiveHome.dart';
 import 'package:firebaselearning/hive_db/views/TodoHiveHome.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,7 +13,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await Hive.initFlutter();
-  Hive.registerAdapter(HiveModelAdapter());
+  Hive.registerAdapter(TodoModelHvAdapter());
   
   runApp(ScreenUtilInit(
     designSize: Size(384, 805),
@@ -25,7 +25,7 @@ void main() async {
             scaffoldBackgroundColor: Colors.white,
             fontFamily: 'Poppins',
           ),
-          home: TodoHiveHome());
+          home: HiveHome());
     },
   ));
 }
